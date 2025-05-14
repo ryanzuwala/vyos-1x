@@ -422,7 +422,7 @@
                               <help>Destination parameters</help>
                             </properties>
                             <children>
-                              #include <include/conntrack/mac-multi.xml.i>
+                              #include <include/firewall/mac-address.xml.i>
                               #include <include/nat-address.xml.i>
                               #include <include/nat-port.xml.i>
                             </children>
@@ -449,7 +449,7 @@
                               <help>Source parameters</help>
                             </properties>
                             <children>
-                              #include <include/conntrack/mac-multi.xml.i>
+                              #include <include/firewall/mac-address.xml.i>
                               #include <include/nat-address.xml.i>
                               #include <include/nat-port.xml.i>
                             </children>
@@ -482,7 +482,7 @@
                               <help>Destination parameters</help>
                             </properties>
                             <children>
-                              #include <include/conntrack/mac-multi.xml.i>
+                              #include <include/firewall/mac-address.xml.i>
                               #include <include/firewall/address-ipv6.xml.i>
                               #include <include/nat-port.xml.i>
                             </children>
@@ -509,7 +509,7 @@
                               <help>Source parameters</help>
                             </properties>
                             <children>
-                              #include <include/conntrack/mac-multi.xml.i>
+                              #include <include/firewall/mac-address.xml.i>
                               #include <include/firewall/address-ipv6.xml.i>
                               #include <include/nat-port.xml.i>
                             </children>
