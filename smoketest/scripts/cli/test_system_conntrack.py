@@ -253,10 +253,18 @@ class TestSystemConntrack(VyOSUnitTestSHIM.TestCase):
         self.cli_set(base_path + ['timeout', 'custom', 'ipv4', 'rule', '2', 'source', 'address', '198.51.100.1'])
         self.cli_set(base_path + ['timeout', 'custom', 'ipv4', 'rule', '2', 'protocol', 'udp', 'unreplied', '55'])
 
+        self.cli_set(base_path + ['timeout', 'custom', 'ipv4', 'rule', '3', 'inbound-interface', 'eth1'])
+        self.cli_set(base_path + ['timeout', 'custom', 'ipv4', 'rule', '3', 'source', 'mac-address', '01:02:03:04:05:06'])
+        self.cli_set(base_path + ['timeout', 'custom', 'ipv4', 'rule', '3', 'protocol', 'udp', 'unreplied', '66'])
+
         self.cli_set(base_path + ['timeout', 'custom', 'ipv6', 'rule', '1', 'source', 'address', '2001:db8::1'])
         self.cli_set(base_path + ['timeout', 'custom', 'ipv6', 'rule', '1', 'inbound-interface', 'eth2'])
         self.cli_set(base_path + ['timeout', 'custom', 'ipv6', 'rule', '1', 'protocol', 'tcp', 'time-wait', '22'])
         self.cli_set(base_path + ['timeout', 'custom', 'ipv6', 'rule', '1', 'protocol', 'tcp', 'last-ack', '33'])
+
+        self.cli_set(base_path + ['timeout', 'custom', 'ipv6', 'rule', '2', 'inbound-interface', 'eth1'])
+        self.cli_set(base_path + ['timeout', 'custom', 'ipv6', 'rule', '2', 'source', 'mac-address', '01:02:03:04:05:06'])
+        self.cli_set(base_path + ['timeout', 'custom', 'ipv6', 'rule', '2', 'protocol', 'udp', 'unreplied', '66'])
 
         self.cli_commit()
 
@@ -267,17 +275,25 @@ class TestSystemConntrack(VyOSUnitTestSHIM.TestCase):
             ['ct timeout ct-timeout-2 {'],
             ['protocol udp'],
             ['policy = { unreplied : 55s }'],
+            ['ct timeout ct-timeout-3 {'],
+            ['protocol udp'],
+            ['policy = { unreplied : 1m06s }'],
             ['chain VYOS_CT_TIMEOUT {'],
             ['ip saddr 192.0.2.1', 'ip daddr 192.0.2.2', 'tcp dport 22', 'ct timeout set "ct-timeout-1"'],
-            ['iifname "eth1"', 'meta l4proto udp', 'ip saddr 198.51.100.1', 'ct timeout set "ct-timeout-2"']
+            ['iifname "eth1"', 'meta l4proto udp', 'ip saddr 198.51.100.1', 'ct timeout set "ct-timeout-2"'],
+            ['iifname "eth1"', 'meta l4proto udp', 'ether saddr 01:02:03:04:05:06', 'ct timeout set "ct-timeout-3"']
         ]
 
         nftables6_search = [
             ['ct timeout ct-timeout-1 {'],
             ['protocol tcp'],
             ['policy = { last_ack : 33s, time_wait : 22s }'],
+            ['ct timeout ct-timeout-2 {'],
+            ['protocol udp'],
+            ['policy = { unreplied : 1m06s }'],
             ['chain VYOS_CT_TIMEOUT {'],
-            ['iifname "eth2"', 'meta l4proto tcp', 'ip6 saddr 2001:db8::1', 'ct timeout set "ct-timeout-1"']
+            ['iifname "eth2"', 'meta l4proto tcp', 'ip6 saddr 2001:db8::1', 'ct timeout set "ct-timeout-1"'],
+            ['iifname "eth1"', 'meta l4proto udp', 'ether saddr 01:02:03:04:05:06', 'ct timeout set "ct-timeout-2"']
         ]
 
         self.verify_nftables(nftables_search, 'ip vyos_conntrack')
