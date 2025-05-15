@@ -730,8 +730,8 @@ def conntrack_rule(rule_conf, rule_id, action, ipv6=False):
                     port = port[1:]
                 output.append(f'th {prefix}port {operator} {port}')
 
-            if 'mac-address' in side_conf:
-                mac = side_conf['mac-address']
+            if 'mac_address' in side_conf:
+                mac = side_conf['mac_address']
                 operator = ''
                 if mac[0] == '!':
                     operator = '!='
