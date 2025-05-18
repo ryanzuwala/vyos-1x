@@ -231,10 +231,10 @@ def apply(conntrack):
                 add_modules.extend(module_config['ko'])
 
     # Load required module for custom timeouts if config exists
-    if conntrack.exists(['timeout', 'custom']):
-        add_modules.extend('nfnetlink_cttimeout')
-    else:
+    if dict_search_args(conntrack, 'timeout', 'custom') is None:
         rm_modules.extend('nfnetlink_cttimeout')
+    else:
+        add_modules.extend('nfnetlink_cttimeout')
 
     # Add modules before nftables uses them
     if add_modules:
