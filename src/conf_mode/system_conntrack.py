@@ -232,7 +232,8 @@ def apply(conntrack):
 
     # Load required module for custom timeouts if config exists
     if dict_search_args(conntrack, 'timeout', 'custom') is None:
-        rm_modules.extend(['nfnetlink_cttimeout'])
+        if os.path.exists('/sys/module/nfnetlink_cttimeout'):
+            rm_modules.extend(['nfnetlink_cttimeout'])
     else:
         add_modules.extend(['nfnetlink_cttimeout'])
 
