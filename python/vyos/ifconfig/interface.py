@@ -912,7 +912,7 @@ class Interface(Control):
             return None
         return self.set_interface('ipv6_accept_ra', accept_ra)
 
-    def set_ipv6_autoconf(self, autoconf):
+    def set_ipv6_autoconf(self, autoconf, has_dhcpv6=False):
         """
         Autoconfigure addresses using Prefix Information in Router
         Advertisements.
@@ -923,7 +923,10 @@ class Interface(Control):
         rc = self.set_interface('ipv6_autoconf', autoconf)
         if autoconf == '0':
             flushed = self.flush_ipv6_slaac_addrs()
-            self.flush_ipv6_slaac_routes(ra_addrs=flushed)
+
+            # Remove RA routes only if both SLAAC and DHCPv6 are unconfigured
+            if not has_dhcpv6:
+                self.flush_ipv6_ra_routes(ra_addrs=flushed)
         return rc
 
     def add_ipv6_eui64_address(self, prefix):
@@ -1393,7 +1396,7 @@ class Interface(Control):
                 self._cmd(cmd)
         return flushed
 
-    def flush_ipv6_slaac_routes(self, ra_addrs: list=[]) -> None:
+    def flush_ipv6_ra_routes(self, ra_addrs: list=[]) -> None:
         """
         Flush IPv6 default routes installed in response to router advertisement
         messages from this interface.
@@ -1930,7 +1933,8 @@ class Interface(Control):
         # IPv6 address autoconfiguration
         tmp = dict_search('ipv6.address.autoconf', config)
         value = '1' if (tmp != None) else '0'
-        self.set_ipv6_autoconf(value)
+        has_dhcpv6 = 'dhcpv6' in new_addr
+        self.set_ipv6_autoconf(value, has_dhcpv6)
 
         # Whether to accept IPv6 DAD (Duplicate Address Detection) packets
         tmp = dict_search('ipv6.accept_dad', config)
