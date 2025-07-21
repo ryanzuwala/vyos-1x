@@ -1933,7 +1933,8 @@ class Interface(Control):
         # IPv6 address autoconfiguration
         tmp = dict_search('ipv6.address.autoconf', config)
         value = '1' if (tmp != None) else '0'
-        has_dhcpv6 = 'dhcpv6' in new_addr
+        tmp = dict_search('address.dhcpv6', config)
+        has_dhcpv6 = (tmp != None)
         self.set_ipv6_autoconf(value, has_dhcpv6)
 
         # Whether to accept IPv6 DAD (Duplicate Address Detection) packets
