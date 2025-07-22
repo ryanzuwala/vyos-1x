@@ -1403,6 +1403,11 @@ class Interface(Control):
 
         Will raise an exception on error.
         """
+
+        # DEBUG - Remove this later!
+        print('FLUSHING RA ROUTES!')
+        # END DEBUG
+
         # Find IPv6 connected prefixes for flushed SLAAC addresses
         connected = []
         for addr in ra_addrs if isinstance(ra_addrs, list) else []:
