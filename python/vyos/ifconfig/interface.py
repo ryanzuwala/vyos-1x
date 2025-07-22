@@ -1336,10 +1336,6 @@ class Interface(Control):
             self.set_dhcp(False)
         elif addr == 'dhcpv6':
             self.set_dhcpv6(False)
-            # Remove RA routes only if both SLAAC and DHCPv6 are unconfigured
-            tmp = dict_search('ipv6.address.autoconf', self.config)
-            if tmp is None:
-                self.flush_ipv6_ra_routes()
         elif is_intf_addr_assigned(self.ifname, addr, netns=netns):
             netns_cmd  = f'ip netns exec {netns}' if netns else ''
             self._cmd(f'{netns_cmd} ip addr del {addr} dev {self.ifname}')
@@ -1349,6 +1345,11 @@ class Interface(Control):
         # remove from cache
         if addr in self._addr:
             self._addr.remove(addr)
+            if addr == 'dhcpv6':
+                # Remove RA routes only if both SLAAC and DHCPv6 are unconfigured
+                tmp = dict_search('ipv6.address.autoconf', self.config)
+                if tmp is None:
+                    self.flush_ipv6_ra_routes()
 
         return True
 
