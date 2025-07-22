@@ -1932,13 +1932,13 @@ class Interface(Control):
 
         # IPv6 router advertisements
         tmp = dict_search('ipv6.address.autoconf', config)
-        value = '2' if (tmp != None) else '0'
+        has_dhcpv6 = 'dhcpv6' in new_addr
+        value = '2' if (tmp != None or has_dhcpv6) else '0'
         self.set_ipv6_accept_ra(value)
 
         # IPv6 address autoconfiguration
         tmp = dict_search('ipv6.address.autoconf', config)
         value = '1' if (tmp != None) else '0'
-        has_dhcpv6 = 'dhcpv6' in new_addr
         self.set_ipv6_autoconf(value, has_dhcpv6)
 
         # Whether to accept IPv6 DAD (Duplicate Address Detection) packets
