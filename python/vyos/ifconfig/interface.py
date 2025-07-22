@@ -1602,6 +1602,11 @@ class Interface(Control):
             if os.path.isfile(script_file):
                 os.remove(script_file)
 
+            # Remove RA routes only if both SLAAC and DHCPv6 are unconfigured
+            tmp = dict_search('ipv6.address.autoconf', config)
+            if tmp is None:
+                self.flush_ipv6_ra_routes()
+
         return None
 
     def set_mirror_redirect(self):
