@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (C) 2021-2024 VyOS maintainers and contributors
+# Copyright VyOS maintainers and contributors <maintainers@vyos.io>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2 or later as
@@ -728,7 +728,13 @@ class TestFirewall(VyOSUnitTestSHIM.TestCase):
         self.cli_set(['firewall', 'group', 'ipv6-address-group', 'AGV6', 'address', '2001:db1::1'])
         self.cli_set(['firewall', 'global-options', 'state-policy', 'established', 'action', 'accept'])
         self.cli_set(['firewall', 'global-options', 'apply-to-bridged-traffic', 'ipv4'])
-        self.cli_set(['firewall', 'global-options', 'apply-to-bridged-traffic', 'invalid-connections'])
+        self.cli_set(['firewall', 'global-options', 'apply-to-bridged-traffic', 'accept-invalid', 'ethernet-type', 'dhcp'])
+        self.cli_set(['firewall', 'global-options', 'apply-to-bridged-traffic', 'accept-invalid', 'ethernet-type', 'arp'])
+        self.cli_set(['firewall', 'global-options', 'apply-to-bridged-traffic', 'accept-invalid', 'ethernet-type', 'pppoe'])
+        self.cli_set(['firewall', 'global-options', 'apply-to-bridged-traffic', 'accept-invalid', 'ethernet-type', 'pppoe-discovery'])
+        self.cli_set(['firewall', 'global-options', 'apply-to-bridged-traffic', 'accept-invalid', 'ethernet-type', '802.1q'])
+        self.cli_set(['firewall', 'global-options', 'apply-to-bridged-traffic', 'accept-invalid', 'ethernet-type', '802.1ad'])
+        self.cli_set(['firewall', 'global-options', 'apply-to-bridged-traffic', 'accept-invalid', 'ethernet-type', 'wol'])
 
         self.cli_set(['firewall', 'bridge', 'name', name, 'default-action', 'accept'])
         self.cli_set(['firewall', 'bridge', 'name', name, 'default-log'])
@@ -783,7 +789,11 @@ class TestFirewall(VyOSUnitTestSHIM.TestCase):
             ['type filter hook output priority filter; policy accept;'],
             ['ct state invalid', 'udp sport 67', 'udp dport 68', 'accept'],
             ['ct state invalid', 'ether type arp', 'accept'],
+            ['ct state invalid', 'ether type 8021q', 'accept'],
+            ['ct state invalid', 'ether type 8021ad', 'accept'],
+            ['ct state invalid', 'ether type 0x8863', 'accept'],
             ['ct state invalid', 'ether type 0x8864', 'accept'],
+            ['ct state invalid', 'ether type 0x0842', 'accept'],
             ['chain VYOS_PREROUTING_filter'],
             ['type filter hook prerouting priority filter; policy accept;'],
             ['ip6 daddr @A6_AGV6', 'notrack'],
@@ -1112,6 +1122,12 @@ class TestFirewall(VyOSUnitTestSHIM.TestCase):
         # Check conntrack
         self.verify_nftables_chain([['accept']], 'ip vyos_conntrack', 'FW_CONNTRACK')
         self.verify_nftables_chain([['accept']], 'ip6 vyos_conntrack', 'FW_CONNTRACK')
+
+        # Test interface deletion
+        self.cli_delete(['interfaces', 'ethernet', 'eth0', 'vif', '10'])
+
+        with self.assertRaises(ConfigSessionError):
+            self.cli_commit()
 
     def test_zone_flow_offload(self):
         self.cli_set(['firewall', 'flowtable', 'smoketest', 'interface', 'eth0'])
